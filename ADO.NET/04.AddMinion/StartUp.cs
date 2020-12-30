@@ -57,7 +57,7 @@ namespace ado
 
                 //insert minion
                 var addMinionQuery =
-                    new SqlCommand($@"INSERT INTO Minions (Name, Age, TownId) VALUES('@minionName', @minionAge, @townId);",
+                    new SqlCommand($@"INSERT INTO Minions (Name, Age, TownId) VALUES(@minionName, @minionAge, @townId);",
                         sqlConnection);
                 addMinionQuery.Parameters.AddWithValue("@minionName", minionName);
                 addMinionQuery.Parameters.AddWithValue("@minionAge", minionAge);
@@ -67,7 +67,7 @@ namespace ado
                 //minionId
                 var getMinionId = new SqlCommand($@"SELECT Id
 	                                                   FROM Minions
-	                                                   WHERE Name = '@minionName'", sqlConnection);
+	                                                   WHERE Name = @minionName", sqlConnection);
                 getMinionId.Parameters.AddWithValue("@minionName", minionName);
                 var minionId = getMinionId.ExecuteScalar();
 
