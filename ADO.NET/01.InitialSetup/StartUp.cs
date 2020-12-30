@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Data.Common;
 using Microsoft.Data.SqlClient;
-using Microsoft.IdentityModel.Tokens;
 
 namespace _01.InitialSetup
 {
