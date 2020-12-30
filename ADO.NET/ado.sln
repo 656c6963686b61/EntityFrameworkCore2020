@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "04.AddMinion", "04.AddMinio
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "05.ChangeTownNamesCasing", "05.ChangeTownNamesCasing\05.ChangeTownNamesCasing.csproj", "{36985540-FFB8-4171-9867-DF8EF2F97A91}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "06.RemoveVillain", "06.RemoveVillain\06.RemoveVillain.csproj", "{D002E67E-4372-42FA-890E-ADE9B3DE890E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{36985540-FFB8-4171-9867-DF8EF2F97A91}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{36985540-FFB8-4171-9867-DF8EF2F97A91}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{36985540-FFB8-4171-9867-DF8EF2F97A91}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D002E67E-4372-42FA-890E-ADE9B3DE890E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D002E67E-4372-42FA-890E-ADE9B3DE890E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D002E67E-4372-42FA-890E-ADE9B3DE890E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D002E67E-4372-42FA-890E-ADE9B3DE890E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

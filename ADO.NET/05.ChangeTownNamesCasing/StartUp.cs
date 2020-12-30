@@ -55,8 +55,6 @@ namespace _05.ChangeTownNamesCasing
                 {
                     Console.WriteLine("No town names were affected.");
                 }
-                
-
             }
         }
     }

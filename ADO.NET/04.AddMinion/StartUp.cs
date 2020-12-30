@@ -21,62 +21,109 @@ namespace ado
 
             using (sqlConnection)
             {
+                var sqlTransaction = sqlConnection.BeginTransaction();
                 //check for town
-                var townQuery = new SqlCommand($@"SELECT *
+
+                var townQuery = new SqlCommand($@"SELECT Id
 	                                                FROM Towns
 	                                                WHERE Towns.Name = @townName", sqlConnection);
                 townQuery.Parameters.AddWithValue("@townName", townName);
-                var townId = townQuery.ExecuteScalar();
+                townQuery.Transaction = sqlTransaction;
+                var townId = ExecuteScalarCommand(townQuery, sqlTransaction);
 
                 if (townId == null)
                 {
                     var addTownQuery = new SqlCommand($@"INSERT INTO Towns (Name, CountryCode) VALUES(@townName, 2)",
                         sqlConnection);
                     addTownQuery.Parameters.AddWithValue("@townName", townName);
-                    addTownQuery.ExecuteNonQuery();
+                    addTownQuery.Transaction = sqlTransaction;
+                    ExecuteNonQueryCommand(addTownQuery, sqlTransaction);
                     Console.WriteLine($"Town {townName} was added to the database.");
                 }
 
                 //check for villain
-                var villainQuery = new SqlCommand($@"SELECT *
+                var villainQuery = new SqlCommand($@"SELECT Id
 	                                                FROM Villains
 	                                                WHERE Villains.Name = @villainName", sqlConnection);
                 villainQuery.Parameters.AddWithValue("@villainName", villainName);
+                villainQuery.Transaction = sqlTransaction;
 
                 //insert villain if not found
-                var villainId = villainQuery.ExecuteScalar();
+                var villainId = ExecuteScalarCommand(villainQuery, sqlTransaction);
                 if (villainId == null)
                 {
                     var addVillainQuery =
                         new SqlCommand($@"INSERT INTO Villains (Name, EvilnessFactorId) VALUES(@villainName, 4)",
                             sqlConnection);
                     addVillainQuery.Parameters.AddWithValue("@villainName", villainName);
-                    addVillainQuery.ExecuteNonQuery();
+                    addVillainQuery.Transaction = sqlTransaction;
+                    ExecuteNonQueryCommand(addVillainQuery, sqlTransaction);
                     Console.WriteLine($"Villain {villainName} was added to the database.");
                 }
 
                 //insert minion
                 var addMinionQuery =
-                    new SqlCommand($@"INSERT INTO Minions (Name, Age, TownId) VALUES(@minionName, @minionAge, @townId);",
+                    new SqlCommand($@"INSERT INTO Minions (Name, Age, TownId) VALUES(@minionName, @minionAge, 12);",
                         sqlConnection);
                 addMinionQuery.Parameters.AddWithValue("@minionName", minionName);
                 addMinionQuery.Parameters.AddWithValue("@minionAge", minionAge);
-                addMinionQuery.Parameters.AddWithValue("@townId", townId);
-                addMinionQuery.ExecuteNonQuery();
+                addMinionQuery.Transaction = sqlTransaction;
+                ExecuteNonQueryCommand(addMinionQuery, sqlTransaction);
 
                 //minionId
                 var getMinionId = new SqlCommand($@"SELECT Id
 	                                                   FROM Minions
 	                                                   WHERE Name = @minionName", sqlConnection);
                 getMinionId.Parameters.AddWithValue("@minionName", minionName);
-                var minionId = getMinionId.ExecuteScalar();
+                getMinionId.Transaction = sqlTransaction;
+                var minionId = ExecuteScalarCommand(townQuery, sqlTransaction);
 
                 var insertRelationship =
                     new SqlCommand(
-                        $@"INSERT INTO MinionsVillains (MinionId, VillainId) VALUES(@minionId, @villainId);");
+                        $@"INSERT INTO MinionsVillains (MinionId, VillainId) VALUES(@minionId, @villainId);", sqlConnection);
                 insertRelationship.Parameters.AddWithValue("@minionId", minionId);
                 insertRelationship.Parameters.AddWithValue("@villainId", villainId);
+                insertRelationship.Transaction = sqlTransaction;
+                ExecuteNonQueryCommand(insertRelationship,sqlTransaction);
+
+                try
+                {
+                    sqlTransaction.Commit();
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                    throw;
+                }
+
                 Console.WriteLine($"Successfully added {minionName} to be minion of {villainName}.");
+            }
+        }
+
+        private static object ExecuteScalarCommand(SqlCommand command, SqlTransaction transaction)
+        {
+            try
+            {
+                return command.ExecuteScalar();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                transaction.Rollback();
+                return null;
+            }
+        }
+
+        private static void ExecuteNonQueryCommand(SqlCommand command, SqlTransaction transaction)
+        {
+            try
+            {
+                command.ExecuteNonQuery();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                transaction.Rollback();
             }
         }
     }
