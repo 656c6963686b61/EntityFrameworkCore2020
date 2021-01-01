@@ -1,6 +1,7 @@
-﻿namespace LINQ
+﻿namespace P01_HospitalDatabase
 {
-    using P01_HospitalDatabase.Data;
+    using Data;
+
     class StartUp
     {
         static void Main(string[] args)
