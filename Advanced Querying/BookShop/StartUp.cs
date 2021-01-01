@@ -13,10 +13,11 @@
         {
             using var db = new BookShopContext();
             //DbInitializer.ResetDatabase(db);
-            var ageRestriction = Console.ReadLine();
-            Console.WriteLine(GetBooksByAgeRestriction(db, ageRestriction));
+            int year = int.Parse(Console.ReadLine()!);
+            Console.WriteLine(GetBooksNotReleasedIn(db, year));
         }
 
+        //problem 1
         public static string GetBooksByAgeRestriction(BookShopContext context, string command)
         {
             //age restriction is stored as a number in the database
@@ -42,9 +43,58 @@
                 .Where(x => x.AgeRestriction == ageRestriction)
                 .Select(x => x.Title)
                 .OrderBy(x => x)
-                .Take(10)
                 .ToList();
             return string.Join("\n", result);
+        }
+
+        //problem 2
+        public static string GetGoldenBooks(BookShopContext context)
+        {
+            var goldenBooks = context
+                .Books
+                .Where(x => x.Copies < 5000 && x.EditionType == EditionType.Gold)
+                .OrderBy(x => x.BookId)
+                .Select(x => x.Title)
+                .ToList();
+
+            return string.Join("\n", goldenBooks);
+        }
+
+        //problem 3
+        public static string GetBooksByPrice(BookShopContext context)
+        {
+            var books = context
+                .Books
+                .Where(x => x.Price > 40)
+                .Select(x => new
+                {
+                    x.Title,
+                    x.Price
+                })
+                .OrderByDescending(x => x.Price)
+                .ToList();
+
+            string output = string.Empty;
+
+            foreach (var book in books)
+            {
+                output += $"{book.Title} - ${book.Price}" + "\n";
+            }
+
+            return output;
+        }
+
+        //problem 4
+        public static string GetBooksNotReleasedIn(BookShopContext context, int year)
+        {
+            var books = context
+                .Books
+                .Where(x => x.ReleaseDate.Value.Year != year)
+                .OrderBy(x => x.BookId)
+                .Select(x => x.Title)
+                .ToList();
+
+            return string.Join("\n", books);
         }
     }
 }
