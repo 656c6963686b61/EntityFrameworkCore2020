@@ -34,6 +34,9 @@
             modelBuilder.Entity<Product>()
                 .Property(x => x.Name)
                 .IsUnicode();
+            modelBuilder.Entity<Product>()
+                .Property(x => x.Description)
+                .HasDefaultValue("No description");
 
             modelBuilder.Entity<Customer>()
                 .Property(x => x.Name)
@@ -45,6 +48,10 @@
             modelBuilder.Entity<Store>()
                 .Property(x => x.Name)
                 .IsUnicode();
+
+            modelBuilder.Entity<Sale>()
+                .Property(x => x.Date)
+                .HasDefaultValueSql("GETDATE()");
         }
     }
 }
