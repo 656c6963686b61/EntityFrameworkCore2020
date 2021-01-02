@@ -7,6 +7,7 @@
     using System.Runtime.CompilerServices;
     using System.Text;
     using Data;
+    using Models;
     using Models.Enums;
 
     public class StartUp
@@ -15,7 +16,8 @@
         {
             using var db = new BookShopContext();
             //DbInitializer.ResetDatabase(db);
-            Console.WriteLine(GetTotalProfitByCategory(db));
+            Console.WriteLine(RemoveBooks(db));
+           
         }
 
         //problem 1
@@ -254,6 +256,77 @@
             }
 
             return output.TrimEnd();
+        }
+
+        //problem 13
+        public static string GetMostRecentBooks(BookShopContext context)
+        {
+            var categories = context
+                .Categories
+                .Select(x => new
+                {
+                    Books = x.CategoryBooks
+                        .OrderByDescending(x => x.Book.ReleaseDate)
+                        .Take(3)
+                        .Select(x => new
+                        {
+                            x.Book.Title,
+                            x.Book.ReleaseDate
+                        })
+                        .ToList(),
+                    x.Name
+                })
+                .OrderBy(x => x.Name)
+                .ToList();
+
+            string output = string.Empty;
+
+            foreach (var category in categories)
+            {
+                output += $"--{category.Name}" + Environment.NewLine;
+                foreach (var book in category.Books)
+                {
+                    output += $"{book.Title} ({book.ReleaseDate.Value.Year})" + Environment.NewLine;
+                }
+                output.TrimEnd();
+            }
+
+            return output;
+        }
+        
+        //problem 14
+        public static void IncreasePrices(BookShopContext context)
+        {
+            var booksToUpdate = context
+                .Books
+                .Where(x => x.ReleaseDate.Value.Year < 2010)
+                .ToList();
+
+            foreach (var book in booksToUpdate)
+            {
+                book.Price += 5;
+            }
+
+            context.SaveChanges();
+        }
+
+        //problem 15
+        public static int RemoveBooks(BookShopContext context)
+        {
+            var booksToDelete = context
+                .Books
+                .Where(x => x.Copies < 4200)
+                .ToList();
+
+            int counter = 0;
+            foreach (var book in booksToDelete)
+            {
+                context.Books.Remove(book);
+                counter++;
+            }
+
+            context.SaveChanges();
+            return counter;
         }
     }
 }
