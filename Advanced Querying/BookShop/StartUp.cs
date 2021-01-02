@@ -13,8 +13,7 @@
         {
             using var db = new BookShopContext();
             //DbInitializer.ResetDatabase(db);
-            int year = int.Parse(Console.ReadLine()!);
-            Console.WriteLine(GetBooksNotReleasedIn(db, year));
+            Console.WriteLine(GetBooksByCategory(db, "horror mystery drama"));
         }
 
         //problem 1
@@ -95,6 +94,21 @@
                 .ToList();
 
             return string.Join("\n", books);
+        }
+
+        //problem 5
+        public static string GetBooksByCategory(BookShopContext context, string input)
+        {
+            var categories = input.Split().Select(x => x.ToLower()).ToList();
+            var books = context
+                .Books
+                .Where(x => x.BookCategories
+                    .Any(y => categories.Contains(y.Category.Name.ToLower())))
+                .Select(x => x.Title)
+                .OrderBy(x => x)
+                .ToList();
+            
+            return string.Join(Environment.NewLine, books);
         }
     }
 }
