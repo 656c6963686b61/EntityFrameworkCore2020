@@ -1,7 +1,5 @@
 ﻿using CarDealer.Models;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
-using System;
 
 namespace CarDealer.Data
 {
@@ -12,7 +10,7 @@ namespace CarDealer.Data
         {
         }
 
-        protected CarDealerContext()
+        internal CarDealerContext()
         {
         }
 
