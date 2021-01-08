@@ -1,5 +1,6 @@
 ﻿namespace ProductShop.DTOs.Problem_8
 {
+    using System.Collections.Generic;
     using Newtonsoft.Json;
 
     public class UserDTO
@@ -10,7 +11,13 @@
         [JsonProperty("age")]
         public int Age { get; set; }
 
+        //[JsonProperty("soldProducts")]
+        //public ProductsDTO SoldProducts { get; set; }
+
+        [JsonProperty("count")]
+        public int ProductsSoldCount { get; set; }
+
         [JsonProperty("soldProducts")]
-        public ProductsDTO ProductsSold { get; set; }
+        public ICollection<ProductDTO> ProductsSold { get; set; }
     }
 }

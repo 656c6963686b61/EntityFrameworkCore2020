@@ -10,6 +10,7 @@ namespace ProductShop
 
     public class ProductShopProfile : Profile
     {
+
         public ProductShopProfile()
         {
             this.CreateMap<Product, ProductsInRange>()
@@ -34,12 +35,11 @@ namespace ProductShop
 
             this.CreateMap<Product, ProductDTO>();
 
-            this.CreateMap<User, ProductsDTO>()
-                .ForMember(x => x.ProductsSold,
-                    opt => opt.MapFrom(x => x.ProductsSold))
+            this.CreateMap<User, UserDTO>()
                 .ForMember(x => x.ProductsSoldCount,
-                    opt => opt.MapFrom(x => x.ProductsSold.Count(p => p.Buyer != null)));
-
+                    opt => opt.MapFrom(x => x.ProductsSold.Count))
+                .ForMember(x => x.ProductsSold,
+                    opt => opt.MapFrom(x => x.ProductsSold));
         }
     }
 }

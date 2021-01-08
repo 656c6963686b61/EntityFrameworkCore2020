@@ -5,10 +5,15 @@
 
     public class UsersDTO
     {
-        //[JsonProperty("usersCount")]
-        //public int UsersCount { get; set; }
-        //
-        //[JsonProperty("users")]
-        //public ICollection<UsersDTO> Users { get; set; }
+        public UsersDTO()
+        {
+            this.UsersCount = Users.Count;
+        }
+
+        [JsonProperty("usersCount")]
+        public int UsersCount { get; set; }
+        
+        [JsonProperty("users")]
+        public ICollection<UsersDTO> Users { get; set; }
     }
 }

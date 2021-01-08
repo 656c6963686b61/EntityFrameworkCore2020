@@ -5,10 +5,11 @@
 
     public class ProductsDTO
     {
-        [JsonProperty("products")]
-        public ICollection<ProductDTO> ProductsSold { get; set; }
 
         [JsonProperty("count")]
         public int ProductsSoldCount { get; set; }
+
+        [JsonProperty("products")]
+        public ICollection<ProductDTO> ProductsSold { get; set; }
     }
 }
