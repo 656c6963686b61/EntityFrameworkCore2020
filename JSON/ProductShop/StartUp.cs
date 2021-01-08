@@ -8,11 +8,14 @@ using ProductShop.Models;
 
 namespace ProductShop
 {
+    using Microsoft.EntityFrameworkCore;
+
     public class StartUp
     {
         public static void Main(string[] args)
         {
-
+            var db = new ProductShopContext();
+            db.Database.Migrate();
         }
     }
 }
