@@ -35,6 +35,13 @@ namespace CarDealer
                             TravelledDistance = x.TravelledDistance
                         }));
 
+
+            this.CreateMap<Customer, CustomersTotalSales>()
+                .ForMember(x => x.BoughtCars,
+                    opt => opt.MapFrom(x => x.Sales.Count))
+                .ForMember(x => x.SpentMoney,
+                    opt => opt.MapFrom(x => x.Sales.Select(s => s.Car.PartCars.Sum(cs => cs.Part.Price)).FirstOrDefault()));
+
         }
     }
 }

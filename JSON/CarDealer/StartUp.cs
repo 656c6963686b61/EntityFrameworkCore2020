@@ -36,7 +36,8 @@
             //File.WriteAllText(ResultsFileDirectory + "ordered-customers.json", GetOrderedCustomers(context, config));
             //File.WriteAllText(ResultsFileDirectory + "toyota-cars.json", GetCarsFromMakeToyota(context, config));
             //File.WriteAllText(ResultsFileDirectory + "local-suppliers.json", GetLocalSuppliers(context, config));
-            File.WriteAllText(ResultsFileDirectory + "cars-and-parts.json", GetCarsWithTheirListOfParts(context, config));
+            //File.WriteAllText(ResultsFileDirectory + "cars-and-parts.json", GetCarsWithTheirListOfParts(context, config));
+            File.WriteAllText(ResultsFileDirectory + "customers-total-sales.json", GetTotalSalesByCustomer(context, config));
         }
 
         public static string ImportSuppliers(CarDealerContext context, string inputJson)
@@ -125,6 +126,19 @@
                 .ToList();
 
             return JsonConvert.SerializeObject(carsAndParts, Formatting.Indented);
+        }
+
+        public static string GetTotalSalesByCustomer(CarDealerContext context, MapperConfiguration config)
+        {
+            var customers = context
+                .Customers
+                .ProjectTo<CustomersTotalSales>(config)
+                .Where(x => x.BoughtCars >= 1)
+                .OrderByDescending(x => x.SpentMoney)
+                .ThenByDescending(x => x.BoughtCars)
+                .ToList();
+
+            return JsonConvert.SerializeObject(customers, Formatting.Indented);
         }
 
         private static void CheckIfDirectoryExists(string path)
