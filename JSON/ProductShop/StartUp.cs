@@ -9,6 +9,10 @@ using ProductShop.Models;
 namespace ProductShop
 {
     using System.Runtime.CompilerServices;
+    using AutoMapper;
+    using AutoMapper.QueryableExtensions;
+    using DTOs;
+    using DTOs.Problem_8;
     using Microsoft.EntityFrameworkCore;
 
     public class StartUp
@@ -29,12 +33,19 @@ namespace ProductShop
 
             EnsureDirectoryCreated(ResultsDirectoryPath);
 
+            //autoMapper settings
+            var config = new MapperConfiguration(x =>
+            {
+                x.AddProfile<ProductShopProfile>();
+            });
+
+
             //Queries
             
-            //File.WriteAllText(ResultsDirectoryPath + "/products-in-range.json", GetProductsInRange(db));
-            //File.WriteAllText(ResultsDirectoryPath + "/users-sold-products.json", GetSoldProducts(db));
-            //File.WriteAllText(ResultsDirectoryPath + "/categories-by-products.json", GetCategoriesByProductsCount(db));
-            File.WriteAllText(ResultsDirectoryPath + "/users-and-products.json", GetUsersWithProducts(db));
+            //File.WriteAllText(ResultsDirectoryPath + "/products-in-range.json", GetProductsInRange(db, config));
+            //File.WriteAllText(ResultsDirectoryPath + "/users-sold-products.json", GetSoldProducts(db, config));
+            //File.WriteAllText(ResultsDirectoryPath + "/categories-by-products.json", GetCategoriesByProductsCount(db, config));
+            File.WriteAllText(ResultsDirectoryPath + "/users-and-products.json", GetUsersWithProducts(db, config));
         
 
             db.Database.Migrate();
@@ -77,17 +88,11 @@ namespace ProductShop
         }
 
         //Problem 5
-        public static string GetProductsInRange(ProductShopContext context)
+        public static string GetProductsInRange(ProductShopContext context, MapperConfiguration config)
         {
             var products = context
                 .Products
-                .Select(x => new
-                {
-                    name = x.Name,
-                    price = x.Price,
-                    seller = (x.Seller.FirstName + " " + x.Seller.LastName).Trim(),
-
-                })
+                .ProjectTo<ProductsInRange>(config)
                 .Where(x => x.price >= 500 && x.price <= 1000)
                 .OrderBy(x => x.price)
                 .ToList();
@@ -96,75 +101,60 @@ namespace ProductShop
         }
 
         //Problem 6
-        public static string GetSoldProducts(ProductShopContext context)
+        public static string GetSoldProducts(ProductShopContext context, MapperConfiguration config)
         {
             var users = context
                 .Users
-                .Where(x => x.ProductsSold.Any(p => p.Buyer != null))
+                .Where(x => x.ProductsSold.Any(p => p.Buyer != null ))
                 .OrderBy(x => x.LastName)
                 .ThenBy(x => x.FirstName)
-                .Select(x => new
-                {
-                    firstName = x.FirstName,
-                    lastName = x.LastName,
-                    soldProducts = x.ProductsSold.Select(p => new
-                    {
-                        name = p.Name,
-                        price = p.Price,
-                        buyerFirstName = p.Buyer.FirstName,
-                        buyerLastName = p.Buyer.LastName
-                    })
-                })
+                .ProjectTo<UserSoldProducts>(config)
                 .ToList();
 
             return JsonConvert.SerializeObject(users, Formatting.Indented); ;
         }
 
         //Problem 7
-        public static string GetCategoriesByProductsCount(ProductShopContext context)
+        public static string GetCategoriesByProductsCount(ProductShopContext context, MapperConfiguration config)
         {
             var categories = context
                 .Categories
                 .OrderByDescending(x => x.CategoryProducts.Count)
-                .Select(x => new
-                {
-                    category = x.Name,
-                    productsCount = x.CategoryProducts.Count,
-                    averagePrice = x.CategoryProducts.Average(x => x.Product.Price).ToString("f2"),
-                    totalRevenue = x.CategoryProducts.Sum(x => x.Product.Price).ToString("f2")
-                });
+                .ProjectTo<CategoryByProduct>(config)
+                .ToList();
 
             return JsonConvert.SerializeObject(categories, Formatting.Indented);
         }
 
         //Problem 8
-        public static string GetUsersWithProducts(ProductShopContext context)
+        public static string GetUsersWithProducts(ProductShopContext context, MapperConfiguration config)
         {
             var users = context
                 .Users
                 .Where(x => x.ProductsSold.Any(p => p.Buyer != null))
-                .Select(x => new
-                {
-                    lastName = x.LastName,
-                    age = x.Age,
-                    soldProducts = new
-                    {
-                        count = x.ProductsSold.Count(x => x.Buyer != null),
-                        products = x.ProductsSold.Where(x => x.Buyer != null).Select(p => new
-                        {
-                            name = p.Name,
-                            price = p.Price
-                        })
-                    }
-                })
-                .OrderByDescending(x => x.soldProducts.count)
+                .ProjectTo<UserDTO>(config)
+                //.Select(x => new
+                //{
+                //    lastName = x.LastName,
+                //    age = x.Age,
+                //    soldProducts = new
+                //    {
+                //        count = x.ProductsSold.Count(x => x.Buyer != null),
+                //        products = x.ProductsSold.Where(x => x.Buyer != null).Select(p => new
+                //        {
+                //            name = p.Name,
+                //            price = p.Price
+                //        })
+                //    }
+                //})
+                //.OrderByDescending(x => x.soldProducts.count)
                 .ToList();
 
-            var obj = new
-            {
-                usersCount = users.Count,
-                users = users
-            };
+            //var obj = new
+            //{
+            //    usersCount = users.Count,
+            //    users = users
+            //};
 
             var settings = new JsonSerializerSettings()
             {
@@ -172,7 +162,7 @@ namespace ProductShop
                 Formatting = Formatting.Indented
             };
 
-            return JsonConvert.SerializeObject(obj, settings);
+            return JsonConvert.SerializeObject(users, settings);
         }
 
         private static void EnsureDirectoryCreated(string path)
