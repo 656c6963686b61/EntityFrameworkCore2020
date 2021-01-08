@@ -36,10 +36,13 @@ namespace ProductShop
             this.CreateMap<Product, ProductDTO>();
 
             this.CreateMap<User, UserDTO>()
-                .ForMember(x => x.ProductsSoldCount,
-                    opt => opt.MapFrom(x => x.ProductsSold.Count))
-                .ForMember(x => x.ProductsSold,
-                    opt => opt.MapFrom(x => x.ProductsSold));
+                .ForMember(x => x.SoldProducts,
+                    opt => opt.MapFrom(x => new ProductsDTO
+                    {
+                        ProductsSoldCount = x.ProductsSold.Count,
+                        ProductsSold = x.ProductsSold
+                    }));
+            
         }
     }
 }

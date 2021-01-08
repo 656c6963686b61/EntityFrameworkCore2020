@@ -132,7 +132,7 @@ namespace ProductShop
             var products = context
                 .Users
                 .Where(x => x.ProductsSold.Any(p => p.Buyer != null))
-                .ProjectTo<UsersDTO>(config)
+                .ProjectTo<UserDTO>(config)
                 .ToList();
 
            
