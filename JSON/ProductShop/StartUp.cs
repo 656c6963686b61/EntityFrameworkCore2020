@@ -129,35 +129,17 @@ namespace ProductShop
         //Problem 8
         public static string GetUsersWithProducts(ProductShopContext context, MapperConfiguration config)
         {
-            var products = context
+            var users = context
                 .Users
                 .Where(x => x.ProductsSold.Any(p => p.Buyer != null))
                 .ProjectTo<UserDTO>(config)
                 .ToList();
 
-           
-            //.Select(x => new
-            //{
-            //    lastName = x.LastName,
-            //    age = x.Age,
-            //    soldProducts = new
-            //    {
-            //        count = x.ProductsSold.Count(x => x.Buyer != null),
-            //        products = x.ProductsSold.Where(x => x.Buyer != null).Select(p => new
-            //        {
-            //            name = p.Name,
-            //            price = p.Price
-            //        })
-            //    }
-            //})
-            //.OrderByDescending(x => x.soldProducts.count)
-
-
-            //var obj = new
-            //{
-            //    usersCount = users.Count,
-            //    users = users
-            //};
+            var obj = new
+            {
+                usersCount = users.Count,
+                users = users
+            };
 
             var settings = new JsonSerializerSettings()
             {
@@ -165,7 +147,7 @@ namespace ProductShop
                 Formatting = Formatting.Indented
             };
 
-            return JsonConvert.SerializeObject(products, settings);
+            return JsonConvert.SerializeObject(obj, settings);
         }
 
         private static void EnsureDirectoryCreated(string path)

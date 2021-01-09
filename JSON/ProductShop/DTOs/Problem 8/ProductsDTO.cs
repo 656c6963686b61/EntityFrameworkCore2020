@@ -11,6 +11,6 @@
         public int ProductsSoldCount { get; set; }
 
         [JsonProperty("products")]
-        public ICollection<Product> ProductsSold { get; set; }
+        public ICollection<ProductDTO> ProductsSold { get; set; }
     }
 }

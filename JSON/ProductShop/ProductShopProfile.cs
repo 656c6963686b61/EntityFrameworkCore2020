@@ -2,6 +2,7 @@
 
 namespace ProductShop
 {
+    using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
     using DTOs;
@@ -40,9 +41,12 @@ namespace ProductShop
                     opt => opt.MapFrom(x => new ProductsDTO
                     {
                         ProductsSoldCount = x.ProductsSold.Count,
-                        ProductsSold = x.ProductsSold
+                        ProductsSold = (ICollection<ProductDTO>)x.ProductsSold.Select(x => new ProductDTO
+                        {
+                            Name = x.Name,
+                            Price = x.Price
+                        })
                     }));
-            
         }
     }
 }

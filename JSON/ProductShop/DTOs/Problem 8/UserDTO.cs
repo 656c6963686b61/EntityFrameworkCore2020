@@ -9,7 +9,7 @@
         public string LastName { get; set; }
 
         [JsonProperty("age")]
-        public int Age { get; set; }
+        public int? Age { get; set; }
 
         [JsonProperty("soldProducts")]
         public ProductsDTO SoldProducts { get; set; }
