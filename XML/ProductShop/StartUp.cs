@@ -1,15 +1,12 @@
-﻿using ProductShop.Data;
-
-namespace ProductShop
+﻿namespace ProductShop
 {
-    using System;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-    using System.Runtime.CompilerServices;
     using System.Xml.Serialization;
     using AutoMapper;
     using AutoMapper.QueryableExtensions;
+    using Data;
     using Dtos.Export;
     using Dtos.Import;
     using Models;
@@ -17,8 +14,9 @@ namespace ProductShop
     public class StartUp
     {
         private static string ImportFilePath = "../../../Datasets/"; // + filename
-        private static string ExportFilePath = "../../../Results/";
+        private static readonly string ExportFilePath = "../../../Results/";
         private static IMapper mapper;
+
         public static void Main(string[] args)
         {
             var context = new ProductShopContext();
@@ -26,10 +24,7 @@ namespace ProductShop
             EnsureFolderCreated(ExportFilePath);
             context.Database.EnsureCreated();
 
-            var config = new MapperConfiguration(x => 
-            {
-                x.AddProfile(new ProductShopProfile());
-            });
+            var config = new MapperConfiguration(x => { x.AddProfile(new ProductShopProfile()); });
             mapper = config.CreateMapper();
 
             //GetProductsInRange(context);
@@ -48,13 +43,13 @@ namespace ProductShop
             //deserializing xml to dto class
             var serializer = new XmlSerializer(typeof(ImportUser[]), new XmlRootAttribute("Users"));
 
-            using (var reader = File.OpenRead(inputXml))
+            using (FileStream reader = File.OpenRead(inputXml))
             {
-                var users = (ImportUser[])serializer.Deserialize(reader);
+                var users = (ImportUser[]) serializer.Deserialize(reader);
 
                 //mapping the classes manually
                 var dbUsers = new List<User>();
-                foreach (var user in users)
+                foreach (ImportUser user in users)
                 {
                     var dbUser = new User
                     {
@@ -68,7 +63,7 @@ namespace ProductShop
                 context.Users.AddRange(dbUsers);
                 context.SaveChanges();
             }
-            
+
             return $"Successfully imported {context.Users.Count()}";
         }
 
@@ -76,19 +71,20 @@ namespace ProductShop
         {
             var serializer = new XmlSerializer(typeof(ImportProduct[]), new XmlRootAttribute("Products"));
 
-            using (var reader = File.OpenRead(inputXml))
+            using (FileStream reader = File.OpenRead(inputXml))
             {
-                var products = (ImportProduct[])serializer.Deserialize(reader);
+                var products = (ImportProduct[]) serializer.Deserialize(reader);
 
                 var dbProducts = new List<Product>();
-                foreach (var product in products.Where(x => x.BuyerId > 0 && x.BuyerId <= context.Users.Max(y => y.Id)))
+                foreach (ImportProduct product in products.Where(x =>
+                    x.BuyerId > 0 && x.BuyerId <= context.Users.Max(y => y.Id)))
                 {
                     var dbProduct = new Product
                     {
                         Name = product.Name,
                         Price = product.Price,
                         SellerId = product.SellerId,
-                        BuyerId = product.BuyerId,
+                        BuyerId = product.BuyerId
                     };
                     dbProducts.Add(dbProduct);
                 }
@@ -104,16 +100,16 @@ namespace ProductShop
         {
             var serializer = new XmlSerializer(typeof(ImportCategory[]), new XmlRootAttribute("Categories"));
 
-            using (var reader = File.OpenRead(inputXml))
+            using (FileStream reader = File.OpenRead(inputXml))
             {
-                var categories = (ImportCategory[])serializer.Deserialize(reader);
+                var categories = (ImportCategory[]) serializer.Deserialize(reader);
 
                 var dbCategories = new List<Category>();
-                foreach (var category in categories)
+                foreach (ImportCategory category in categories)
                 {
                     var dbCategory = new Category
                     {
-                        Name = category.Name,
+                        Name = category.Name
                     };
                     dbCategories.Add(dbCategory);
                 }
@@ -127,24 +123,24 @@ namespace ProductShop
 
         public static string ImportCategoryProducts(ProductShopContext context, string inputXml)
         {
-            var serializer = new XmlSerializer(typeof(ImportCategoryProduct[]), new XmlRootAttribute("CategoryProducts"));
+            var serializer =
+                new XmlSerializer(typeof(ImportCategoryProduct[]), new XmlRootAttribute("CategoryProducts"));
 
-            using (var reader = File.OpenRead(inputXml))
+            using (FileStream reader = File.OpenRead(inputXml))
             {
-                var categoriesProducts = (ImportCategoryProduct[])serializer.Deserialize(reader);
+                var categoriesProducts = (ImportCategoryProduct[]) serializer.Deserialize(reader);
                 var dbCategoryProducts = new List<CategoryProduct>();
-                foreach (var categoryProduct in categoriesProducts)
-                {
+                foreach (ImportCategoryProduct categoryProduct in categoriesProducts)
                     if (CheckEntity(context, categoryProduct))
                     {
                         var dbCategoryProduct = new CategoryProduct
                         {
                             CategoryId = categoryProduct.CategoryId,
-                            ProductId = categoryProduct.ProductId,
+                            ProductId = categoryProduct.ProductId
                         };
                         dbCategoryProducts.Add(dbCategoryProduct);
                     }
-                }
+
                 context.CategoryProducts.AddRange(dbCategoryProducts);
                 context.SaveChanges();
             }
@@ -155,7 +151,7 @@ namespace ProductShop
         public static string GetProductsInRange(ProductShopContext context)
         {
             var serializer = new XmlSerializer(typeof(ProductsInRange[]), new XmlRootAttribute("Products"));
-            var products = context
+            ProductsInRange[] products = context
                 .Products
                 .ProjectTo<ProductsInRange>(mapper.ConfigurationProvider)
                 .Where(x => x.Price >= 500 && x.Price <= 1000)
@@ -163,7 +159,7 @@ namespace ProductShop
                 .Take(10)
                 .ToArray();
 
-            using (var writer = File.OpenWrite(ExportFilePath + "products-in-range.xml"))
+            using (FileStream writer = File.OpenWrite(ExportFilePath + "products-in-range.xml"))
             {
                 serializer.Serialize(writer, products);
             }
@@ -174,7 +170,7 @@ namespace ProductShop
         public static string GetSoldProducts(ProductShopContext context)
         {
             var serializer = new XmlSerializer(typeof(UsersSoldProducts[]), new XmlRootAttribute("Users"));
-            var users = context
+            UsersSoldProducts[] users = context
                 .Users
                 .ProjectTo<UsersSoldProducts>(mapper.ConfigurationProvider)
                 .Where(x => x.SoldProducts.Any())
@@ -183,7 +179,7 @@ namespace ProductShop
                 .Take(5)
                 .ToArray();
 
-            using (var writer = File.OpenWrite(ExportFilePath + "users-sold-products.xml"))
+            using (FileStream writer = File.OpenWrite(ExportFilePath + "users-sold-products.xml"))
             {
                 serializer.Serialize(writer, users);
             }
@@ -195,14 +191,14 @@ namespace ProductShop
         {
             var serializer = new XmlSerializer(typeof(CategoryByProduct[]), new XmlRootAttribute("Categories"));
 
-            var categories = context
+            CategoryByProduct[] categories = context
                 .Categories
                 .ProjectTo<CategoryByProduct>(mapper.ConfigurationProvider)
                 .OrderByDescending(x => x.Count)
                 .ThenBy(x => x.TotalRevenue)
                 .ToArray();
 
-            using (var writer = File.OpenWrite(ExportFilePath + "categories-by-products.xml"))
+            using (FileStream writer = File.OpenWrite(ExportFilePath + "categories-by-products.xml"))
             {
                 serializer.Serialize(writer, categories);
             }
@@ -214,7 +210,7 @@ namespace ProductShop
         {
             var serializer = new XmlSerializer(typeof(UsersUAP), new XmlRootAttribute("Users"));
 
-            var users = context
+            List<UserUAP> users = context
                 .Users
                 .ProjectTo<UserUAP>(mapper.ConfigurationProvider)
                 .Where(x => x.SoldProducts.Count >= 1)
@@ -226,7 +222,7 @@ namespace ProductShop
                 Users = users.Take(10).ToList()
             };
 
-            using (var writer = File.OpenWrite(ExportFilePath + "users-and-products.xml"))
+            using (FileStream writer = File.OpenWrite(ExportFilePath + "users-and-products.xml"))
             {
                 serializer.Serialize(writer, obj);
             }
@@ -247,10 +243,7 @@ namespace ProductShop
 
         private static void EnsureFolderCreated(string path)
         {
-            if (!Directory.Exists(path))
-            {
-                Directory.CreateDirectory(path);
-            }
+            if (!Directory.Exists(path)) Directory.CreateDirectory(path);
         }
     }
 }
