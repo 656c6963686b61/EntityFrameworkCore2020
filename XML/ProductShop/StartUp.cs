@@ -35,7 +35,7 @@ namespace ProductShop
             //GetProductsInRange(context);
             //GetSoldProducts(context);
             //GetCategoriesByProductsCount(context);
-            GetUsersWithProducts(context);
+            //GetUsersWithProducts(context);
 
             //Console.WriteLine(ImportUsers(context, ImportFilePath + "users.xml"));
             //Console.WriteLine(ImportProducts(context, ImportFilePath + "products.xml"));
@@ -223,7 +223,7 @@ namespace ProductShop
             var obj = new UsersUAP
             {
                 Count = users.Count,
-                Users = users.ToList()
+                Users = users.Take(10).ToList()
             };
 
             using (var writer = File.OpenWrite(ExportFilePath + "users-and-products.xml"))

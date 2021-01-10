@@ -242,8 +242,8 @@
         </products>
       </SoldProducts>
     </User>
-    <User>
-      <firstName>Sal</firstName>
+  </users>
+</Users>irstName>Sal</firstName>
       <lastName>Loseby</lastName>
       <age>46</age>
       <SoldProducts>
