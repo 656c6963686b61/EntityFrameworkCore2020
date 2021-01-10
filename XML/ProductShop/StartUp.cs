@@ -34,6 +34,8 @@ namespace ProductShop
 
             //GetProductsInRange(context);
             //GetSoldProducts(context);
+            //GetCategoriesByProductsCount(context);
+            GetUsersWithProducts(context);
 
             //Console.WriteLine(ImportUsers(context, ImportFilePath + "users.xml"));
             //Console.WriteLine(ImportProducts(context, ImportFilePath + "products.xml"));
@@ -191,7 +193,45 @@ namespace ProductShop
 
         public static string GetCategoriesByProductsCount(ProductShopContext context)
         {
+            var serializer = new XmlSerializer(typeof(CategoryByProduct[]), new XmlRootAttribute("Categories"));
 
+            var categories = context
+                .Categories
+                .ProjectTo<CategoryByProduct>(mapper.ConfigurationProvider)
+                .OrderByDescending(x => x.Count)
+                .ThenBy(x => x.TotalRevenue)
+                .ToArray();
+
+            using (var writer = File.OpenWrite(ExportFilePath + "categories-by-products.xml"))
+            {
+                serializer.Serialize(writer, categories);
+            }
+
+            return "";
+        }
+
+        public static string GetUsersWithProducts(ProductShopContext context)
+        {
+            var serializer = new XmlSerializer(typeof(UsersUAP), new XmlRootAttribute("Users"));
+
+            var users = context
+                .Users
+                .ProjectTo<UserUAP>(mapper.ConfigurationProvider)
+                .Where(x => x.SoldProducts.Count >= 1)
+                .ToList();
+
+            var obj = new UsersUAP
+            {
+                Count = users.Count,
+                Users = users.ToList()
+            };
+
+            using (var writer = File.OpenWrite(ExportFilePath + "users-and-products.xml"))
+            {
+                serializer.Serialize(writer, obj);
+            }
+
+            return "";
         }
 
         private static bool CheckEntity(ProductShopContext context, ImportCategoryProduct categoryProduct)
