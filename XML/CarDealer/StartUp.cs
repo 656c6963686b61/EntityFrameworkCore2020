@@ -33,9 +33,12 @@
             });
             mapper = config.CreateMapper();
 
+            //ImportData
             //Console.WriteLine(ImportSuppliers(context, ImportPath + "suppliers.xml"));
             //Console.WriteLine(ImportParts(context, ImportPath + "parts.xml"));
             //Console.WriteLine(ImportCars(context, ImportPath + "cars.xml"));
+            //Console.WriteLine(ImportCustomers(context, ImportPath + "customers.xml"));
+            //Console.WriteLine(ImportSales(context, ImportPath + "sales.xml"));
 
         }
         public static string ImportSuppliers(CarDealerContext context, string inputXml)
@@ -75,10 +78,10 @@
             var serializer = new XmlSerializer(typeof(List<ImportCar>), new XmlRootAttribute("Cars"));
             var dbCars = new List<Car>();
             var partCars = new List<PartCar>();
-            
+
             using (var reader = File.OpenRead(inputXml))
             {
-                var xmlCars = (List<ImportCar>) serializer.Deserialize(reader);
+                var xmlCars = (List<ImportCar>)serializer.Deserialize(reader);
 
                 foreach (var xmlCar in xmlCars)
                 {
@@ -94,7 +97,7 @@
                         Model = xmlCar.Model,
                         TravelledDistance = xmlCar.TravelledDistance
                     };
-                    
+
                     foreach (var partId in parts)
                     {
                         var dbPart = new PartCar
@@ -106,25 +109,42 @@
                     }
                     dbCars.Add(dbCar);
                 }
-                
             }
 
-            
             context.Cars.AddRange(dbCars);
             context.PartCars.AddRange(partCars);
             context.SaveChanges();
-            
+
             return $"Successfully imported {context.Cars.Count()} + {context.PartCars.Count()} "; ;
         }
 
         public static string ImportCustomers(CarDealerContext context, string inputXml)
         {
+            var serializer = new XmlSerializer(typeof(ImportCustomer[]), new XmlRootAttribute("Customers"));
+            List<Customer> dbCustomers;
 
+            using (var reader = File.OpenRead(inputXml))
+            {
+                var xmlCustomers = (ImportCustomer[])serializer.Deserialize(reader);
+                dbCustomers = mapper.Map<List<Customer>>(xmlCustomers);
+            }
+            context.Customers.AddRange(dbCustomers);
+            context.SaveChanges();
             return $"Successfully imported {context.Customers.Count()}";
         }
 
         public static string ImportSales(CarDealerContext context, string inputXml)
         {
+            var serializer = new XmlSerializer(typeof(ImportSale[]), new XmlRootAttribute("Sales"));
+            List<Sale> dbSales;
+
+            using (var reader = File.OpenRead(inputXml))
+            {
+                var xmlSales = (ImportSale[])serializer.Deserialize(reader);
+                dbSales = mapper.Map<List<Sale>>(xmlSales);
+            }
+            context.Sales.AddRange(dbSales.Where(x => x.CarId > 0 && x.CarId <= context.Cars.Max(y => y.Id)));
+            context.SaveChanges();
             return $"Successfully imported {context.Sales.Count()}";
         }
 

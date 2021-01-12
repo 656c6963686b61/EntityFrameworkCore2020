@@ -15,12 +15,12 @@ namespace CarDealer
         {
             this.CreateMap<ImportSupplier, Supplier>();
             this.CreateMap<ImportPart, Part>();
+            this.CreateMap<ImportCustomer, Customer>();
+            this.CreateMap<ImportSale, Sale>();
 
             this.CreateMap<ImportPartCar, PartCar>()
                 .ForMember(x => x.PartId,
                     opt => opt.MapFrom(x => x.PartId))
-                .ForMember(x => x.Car,
-                    opt => opt.MapFrom(x => x.Car))
                 .ForMember(x => x.CarId,
                     opt => opt.MapFrom(x => x.CarId));
 
@@ -28,7 +28,8 @@ namespace CarDealer
                 .ForMember(x => x.PartCars,
                     opt => opt.MapFrom(x => x.PartCars.Select(y => new PartCar
                     {
-                        PartId = y.PartId
+                        PartId = y.PartId,
+                        CarId = x.Id
                     }).ToList()));
         }
     }

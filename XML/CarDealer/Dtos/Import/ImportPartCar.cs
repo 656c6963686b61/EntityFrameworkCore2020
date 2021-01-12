@@ -11,9 +11,6 @@ namespace CarDealer.Dtos.Import
         public int PartId { get; set; }
 
         [XmlIgnore]
-        public Car Car { get; set; }
-
-        [XmlIgnore]
         public int CarId { get; set; }
     }
 }
