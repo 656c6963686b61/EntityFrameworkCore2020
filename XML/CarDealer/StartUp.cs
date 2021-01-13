@@ -7,7 +7,9 @@
     using System.Runtime.CompilerServices;
     using System.Xml.Serialization;
     using AutoMapper;
+    using AutoMapper.QueryableExtensions;
     using Data;
+    using Dtos.Export;
     using Dtos.Import;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Options;
@@ -40,6 +42,13 @@
             //Console.WriteLine(ImportCustomers(context, ImportPath + "customers.xml"));
             //Console.WriteLine(ImportSales(context, ImportPath + "sales.xml"));
 
+            //Export
+            //GetCarsWithDistance(context);
+            //GetCarsFromMakeBmw(context);
+            //GetLocalSuppliers(context);
+            //GetCarsWithTheirListOfParts(context);
+            //GetTotalSalesByCustomer(context);
+            GetSalesWithAppliedDiscount(context);
         }
         public static string ImportSuppliers(CarDealerContext context, string inputXml)
         {
@@ -146,6 +155,127 @@
             context.Sales.AddRange(dbSales.Where(x => x.CarId > 0 && x.CarId <= context.Cars.Max(y => y.Id)));
             context.SaveChanges();
             return $"Successfully imported {context.Sales.Count()}";
+        }
+
+        public static string GetCarsWithDistance(CarDealerContext context)
+        {
+            var carsToExport = context
+                .Cars
+                .Where(c => c.TravelledDistance > 2000000)
+                .OrderBy(c => c.Make)
+                .ThenBy(c => c.Model)
+                .Take(10)
+                .ProjectTo<CarsWithDistance>(mapper.ConfigurationProvider)
+                .ToArray();
+
+            XmlSerializer serializer = new XmlSerializer(typeof(CarsWithDistance[]),
+                new XmlRootAttribute("cars"));
+
+            using (var writer = File.OpenWrite(ExportPath + "cars.xml"))
+            {
+                serializer.Serialize(writer, carsToExport);
+            }
+
+            return $"";
+        }
+
+        public static string GetCarsFromMakeBmw(CarDealerContext context)
+        {
+            var bmwCars = context
+                .Cars
+                .Where(x => x.Make == "BMW")
+                .OrderBy(c => c.Model)
+                .ThenByDescending(c => c.TravelledDistance)
+                .ProjectTo<BmwCars>(mapper.ConfigurationProvider)
+                .ToArray();
+
+            XmlSerializer serializer = new XmlSerializer(typeof(BmwCars[]),
+                new XmlRootAttribute("cars"));
+
+            using (var writer = File.OpenWrite(ExportPath + "bmw-cars.xml"))
+            {
+                serializer.Serialize(writer, bmwCars);
+            }
+
+            return $"";
+        }
+
+        public static string GetLocalSuppliers(CarDealerContext context)
+        {
+            var suppliers = context
+                .Suppliers
+                .Where(x => x.IsImporter == false)
+                .ProjectTo<LocalSupplier>(mapper.ConfigurationProvider)
+                .ToArray();
+
+            XmlSerializer serializer = new XmlSerializer(typeof(LocalSupplier[]),
+                new XmlRootAttribute("suppliers"));
+
+            using (var writer = File.OpenWrite(ExportPath + "local-suppliers.xml"))
+            {
+                serializer.Serialize(writer, suppliers);
+            }
+
+            return $"";
+        }
+
+        public static string GetCarsWithTheirListOfParts(CarDealerContext context)
+        {
+            var carsWithParts = context
+                .Cars
+                .OrderByDescending(x => x.TravelledDistance)
+                .ThenBy(x => x.Model)
+                .ProjectTo<CarCAP>(mapper.ConfigurationProvider)
+                .Take(5)
+                .ToArray();
+
+            XmlSerializer serializer = new XmlSerializer(typeof(CarCAP[]),
+                new XmlRootAttribute("cars"));
+
+            using (var writer = File.OpenWrite(ExportPath + "cars-and-parts.xml"))
+            {
+                serializer.Serialize(writer, carsWithParts);
+            }
+
+            return $"";
+        }
+
+        public static string GetTotalSalesByCustomer(CarDealerContext context)
+        {
+            var customers = context
+                .Customers
+                .ProjectTo<CustomersTotalSales>(mapper.ConfigurationProvider)
+                .Where(x => x.BoughtCars >= 1)
+                .OrderByDescending(x => x.MoneySpent)
+                .ToArray();
+
+            XmlSerializer serializer = new XmlSerializer(typeof(CustomersTotalSales[]),
+                new XmlRootAttribute("customers"));
+
+            using (var writer = File.OpenWrite(ExportPath + "customers-total-sales.xml"))
+            {
+                serializer.Serialize(writer, customers);
+            }
+
+            return $"";
+        }
+
+        public static string GetSalesWithAppliedDiscount(CarDealerContext context)
+        {
+            var sales = context
+                .Sales
+                .ProjectTo<SaleSD>(mapper.ConfigurationProvider)
+                .ToArray();
+
+            XmlSerializer serializer = new XmlSerializer(typeof(SaleSD[]),
+                new XmlRootAttribute("sales"));
+
+            using (var writer = File.OpenWrite(ExportPath + "sales-discounts.xml"))
+            {
+                serializer.Serialize(writer, sales);
+            }
+
+            return $"";
         }
 
         private static void EnsureDirectoryCreated(string path)

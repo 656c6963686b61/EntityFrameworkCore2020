@@ -1,0 +1,64 @@
+<?xml version="1.0"?>
+<cars xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <car make="Opel" model="Astra" travelled-distance="516628215">
+    <parts>
+      <parts name="Welded assembly" price="1020.99" />
+      <parts name="Fuel filter" price="162.99" />
+      <parts name="Fascia" price="100.34" />
+    </parts>
+  </car>
+  <car make="BMW" model="F20" travelled-distance="487897422">
+    <parts>
+      <parts name="Decklid" price="1060.34" />
+      <parts name="Fan blade" price="150.99" />
+      <parts name="Exhaust clamp and bracket" price="140.99" />
+      <parts name="Choke cable" price="130.99" />
+      <parts name="Exhaust pipe" price="130.99" />
+      <parts name="Differential seal" price="109.99" />
+      <parts name="Engine" price="100.99" />
+      <parts name="Windshield" price="100.99" />
+      <parts name="Gudgeon pin" price="44.99" />
+      <parts name="Crankshaft" price="4.99" />
+      <parts name="Drive belt" price="3.99" />
+    </parts>
+  </car>
+  <car make="BMW" model="E67" travelled-distance="476830509">
+    <parts>
+      <parts name="Decklid" price="1060.34" />
+      <parts name="Fuel filter" price="162.99" />
+      <parts name="Fan blade" price="150.99" />
+      <parts name="Air blower" price="140.99" />
+      <parts name="Fuel rail" price="107.99" />
+      <parts name="Muffler" price="106.90" />
+      <parts name="Steering box" price="103.99" />
+      <parts name="Rear Right Quarter Glass" price="100.66" />
+      <parts name="Front Left Side Window motor" price="56.99" />
+      <parts name="Rear Right Side Window motor" price="22.99" />
+    </parts>
+  </car>
+  <car make="BMW" model="F25" travelled-distance="476132712">
+    <parts>
+      <parts name="Exhaust pipe" price="130.99" />
+      <parts name="Engine shake damper and vibration absorber" price="100.99" />
+      <parts name="Window seal" price="100.99" />
+      <parts name="Rear Right Side Door Glass" price="100.90" />
+      <parts name="Front Right Side Window motor" price="44.99" />
+      <parts name="Fender" price="10.34" />
+    </parts>
+  </car>
+  <car make="BMW" model="M Roadster E85" travelled-distance="475685374">
+    <parts>
+      <parts name="Exposed bumper" price="1400.34" />
+      <parts name="Valance" price="1002.99" />
+      <parts name="Fuel cooler" price="140.99" />
+      <parts name="Water pump gasket" price="120.29" />
+      <parts name="Fuel pressure regulator" price="100.99" />
+      <parts name="Rocker arm" price="98.99" />
+      <parts name="Piston" price="94.99" />
+      <parts name="Front Right Side Window motor" price="44.99" />
+      <parts name="Water pipe" price="44.94" />
+      <parts name="Speed reducer" price="14.99" />
+      <parts name="Front fascia" price="11.99" />
+    </parts>
+  </car>
+</cars>
