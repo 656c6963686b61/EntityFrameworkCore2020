@@ -48,7 +48,7 @@
             //GetLocalSuppliers(context);
             //GetCarsWithTheirListOfParts(context);
             //GetTotalSalesByCustomer(context);
-            GetSalesWithAppliedDiscount(context);
+            //GetSalesWithAppliedDiscount(context);
         }
         public static string ImportSuppliers(CarDealerContext context, string inputXml)
         {
@@ -82,6 +82,7 @@
             return $"Successfully imported {context.Parts.Count()}";
         }
 
+        //TODO: add automapper
         public static string ImportCars(CarDealerContext context, string inputXml)
         {
             var serializer = new XmlSerializer(typeof(List<ImportCar>), new XmlRootAttribute("Cars"));
